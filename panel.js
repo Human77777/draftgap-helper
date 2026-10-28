@@ -21,7 +21,7 @@
   <div id="status">已预置示例阵容，尚未填入。</div>
   <div class="buttons"><button id="readMatch" style="background:#51cbb1;color:#05251e;font-weight:bold;width:100%">读取当前比赛并填入</button></div>
   <div id="liveStatus" style="font-size:12px;margin-top:8px;white-space:pre-wrap">按需读取模式：点击才获取，空闲时不检测。</div>
-  <p class="tiny">读取当前世界赛一局的完整阵容。蓝方在左，红方在右。源站未公布十人时请稍后再点。统计补丁沿用 DraftGap 当前数据。</p>
+  <p class="tiny">读取当前世界赛已公布的英雄，未选位置留空。蓝方在左，红方在右。十人齐全后自动打开 Draft Analysis。统计补丁沿用 DraftGap 当前数据。</p>
   </div></section>`;
   const $ = id => shadow.getElementById(id);
   if (savedInputs) {

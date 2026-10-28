@@ -62,12 +62,15 @@
     requireHooks(ctx);
     const saved = { ally: ctx.allyTeam.map(p => ({ ...p })), opponent: ctx.opponentTeam.map(p => ({ ...p })) };
     const options = { updateSelection: false, resetFilters: false, reportEvent: false, updateView: false };
+    const total=[...draft.ally,...draft.opponent].filter(Boolean).length;
+    let applied=0;
     try {
       ctx.resetAll();
       for (const team of ['ally', 'opponent']) {
         for (const [i, c] of draft[team].entries()) {
           if (!c) continue;
-          ctx.pickChampion(team, i, c.id, c.role, options);
+          // 仅第十个英雄开启界面更新，使用 DraftGap 自带的完成阵容 → analysis 行为。
+          ctx.pickChampion(team, i, c.id, c.role, {...options,updateView:total===10&&++applied===10});
           const actual = (team === 'ally' ? ctx.allyTeam : ctx.opponentTeam)[i];
           if (actual.championKey !== c.id || actual.role !== c.role) throw Error(`应用未接受 ${c.chinese}（${c.id}），请检查数据是否加载。`);
         }

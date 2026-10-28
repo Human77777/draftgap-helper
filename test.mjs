@@ -5,9 +5,12 @@ const api=globalThis.DraftGapPrefill;
 const ally='奎桑提，盲僧，塞拉斯，霞，泰坦';
 const opponent='纳尔，赵信，阿卡丽，卡莎，牛头';
 function context(rejectId){
-  const ctx={allyTeam:Array.from({length:5},()=>({})),opponentTeam:Array.from({length:5},()=>({}))};
-  ctx.resetAll=()=>{for(const t of [ctx.allyTeam,ctx.opponentTeam]) for(let i=0;i<5;i++) t[i]={};};
-  ctx.pickChampion=(team,i,id,role)=>{if(id!==rejectId)(team==='ally'?ctx.allyTeam:ctx.opponentTeam)[i]={championKey:id,role};};
+  const ctx={view:'draft',allyTeam:Array.from({length:5},()=>({})),opponentTeam:Array.from({length:5},()=>({}))};
+  ctx.resetAll=()=>{ctx.view='draft';for(const t of [ctx.allyTeam,ctx.opponentTeam]) for(let i=0;i<5;i++) t[i]={};};
+  ctx.pickChampion=(team,i,id,role,options={})=>{
+    if(id!==rejectId)(team==='ally'?ctx.allyTeam:ctx.opponentTeam)[i]={championKey:id,role};
+    if(options.updateView&&[...ctx.allyTeam,...ctx.opponentTeam].every(p=>p.championKey))ctx.view='analysis';
+  };
   ctx.hoverChampion=(team,i,id,role)=>{(team==='ally'?ctx.allyTeam:ctx.opponentTeam)[i]={hoverKey:id,role};};
   return ctx;
 }
@@ -40,4 +43,12 @@ test('联网核对后的 T1 对 MKOI 实时阵容',()=>{
   const d=api.parseDraft('安蓓萨，盲僧，辛德拉，霞，泰坦','纳尔，奇亚娜，阿卡丽，卡莎，牛头');
   assert.deepEqual(d.ally.map(c=>c.id),['799','64','134','498','111']);
   assert.deepEqual(d.opponent.map(c=>c.id),['150','246','84','145','12']);
+});
+test('九人留在 Draft，十人填齐才打开 Draft Analysis，下一次部分阵容回到 Draft',()=>{
+ const ctx=context();
+ api.applyDraft(ctx,api.parseDraft(ally,'纳尔，赵信，阿卡丽，卡莎，-'));
+ assert.equal(ctx.view,'draft');assert.equal(ctx.opponentTeam[4].championKey,undefined);
+ api.applyDraft(ctx,api.parseDraft(ally,opponent));assert.equal(ctx.view,'analysis');
+ api.applyDraft(ctx,api.parseDraft('奎桑提，-，-，霞，-','-，赵信，-，-，-'));
+ assert.equal(ctx.view,'draft');assert.equal(ctx.allyTeam[1].championKey,undefined);
 });
